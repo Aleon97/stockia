@@ -1,0 +1,89 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: obtiene el tenantId del usuario autenticado
+    function getUserTenantId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId;
+    }
+
+    // Helper: verifica que el documento pertenece al tenant del usuario
+    function belongsToTenant() {
+      return resource.data.tenantId == getUserTenantId();
+    }
+
+    // Helper: verifica que el documento que se va a crear incluye el tenantId correcto
+    function incomingBelongsToTenant() {
+      return request.resource.data.tenantId == getUserTenantId();
+    }
+
+    // Helper: el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Users: solo el propio usuario puede leer/escribir su documento
+    // list permitido para validación de email duplicados (isEmailInUse)
+    match /users/{userId} {
+      allow get: if isAuthenticated() && request.auth.uid == userId;
+      allow list: if isAuthenticated() && request.query.limit <= 1;
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Tenants: solo usuarios que pertenecen al tenant pueden leer
+    match /tenants/{tenantId} {
+      allow read: if isAuthenticated() && getUserTenantId() == tenantId;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && getUserTenantId() == tenantId;
+      allow delete: if false;
+    }
+
+    // Registered Emails: lookup de emails para validar duplicados
+    match /registered_emails/{emailId} {
+      allow get: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated();
+      allow update, list: if false;
+    }
+
+    // Products: filtrado por tenantId
+    match /products/{productId} {
+      allow read: if isAuthenticated() && belongsToTenant();
+      allow create: if isAuthenticated() && incomingBelongsToTenant();
+      allow update: if isAuthenticated() && belongsToTenant() && incomingBelongsToTenant();
+      allow delete: if isAuthenticated() && belongsToTenant();
+    }
+
+    // Categories: filtrado por tenantId
+    match /categories/{categoryId} {
+      allow read: if isAuthenticated() && belongsToTenant();
+      allow create: if isAuthenticated() && incomingBelongsToTenant();
+      allow update: if isAuthenticated() && belongsToTenant() && incomingBelongsToTenant();
+      allow delete: if isAuthenticated() && belongsToTenant();
+    }
+
+    // Inventory Movements: filtrado por tenantId
+    match /inventory_movements/{movementId} {
+      allow read: if isAuthenticated() && belongsToTenant();
+      allow create: if isAuthenticated() && incomingBelongsToTenant();
+      allow update: if false; // Los movimientos no se editan
+      allow delete: if false; // Los movimientos no se eliminan
+    }
+
+    // Stock Alerts: filtrado por tenantId
+    match /stock_alerts/{alertId} {
+      allow read: if isAuthenticated() && belongsToTenant();
+      allow create: if isAuthenticated() && incomingBelongsToTenant();
+      allow update: if isAuthenticated() && belongsToTenant() && incomingBelongsToTenant();
+      allow delete: if isAuthenticated() && belongsToTenant();
+    }
+
+    // Denegar todo lo demás
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
