@@ -1,10 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stockia/domain/entities/user_entity.dart';
-import 'package:stockia/domain/entities/tenant_entity.dart';
-import 'package:stockia/domain/entities/product_entity.dart';
-import 'package:stockia/domain/entities/category_entity.dart';
 import 'package:stockia/domain/entities/inventory_movement_entity.dart';
-import 'package:stockia/domain/entities/stock_alert_entity.dart';
+import 'package:stockia/domain/entities/user_entity.dart';
 import '../../mocks/test_fixtures.dart';
 
 void main() {
@@ -181,7 +177,7 @@ void main() {
   group('SignUpData', () {
     test('se crea con todos los campos requeridos', () {
       expect(testSignUpData.email, 'new@stockia.com');
-      expect(testSignUpData.password, 'password123');
+      expect(testSignUpData.password, 'Test@1234');
       expect(testSignUpData.companyName, 'Mi Empresa');
       expect(testSignUpData.nit, '900.999.888-1');
       expect(testSignUpData.businessType, 'Ferretería');

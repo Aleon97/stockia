@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stockia/presentation/screens/user_profile_screen.dart';
+import 'package:stockia/presentation/widgets/password_strength.dart';
 
 void main() {
   group('PasswordValidator', () {

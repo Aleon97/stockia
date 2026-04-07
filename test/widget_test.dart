@@ -14,7 +14,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verificar que la app muestra la pantalla de login
-    expect(find.text('StockIA'), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
     expect(find.text('Iniciar sesión'), findsOneWidget);
   });
 }

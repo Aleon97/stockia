@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockia/firebase_options.dart';
@@ -75,41 +74,94 @@ class StockIAApp extends ConsumerWidget {
   }
 }
 
-class _AuthGate extends ConsumerWidget {
+class _AuthGate extends ConsumerStatefulWidget {
   const _AuthGate();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends ConsumerState<_AuthGate> {
+  Timer? _retryTimer;
+  int _retryCount = 0;
+  static const _maxRetries = 15;
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleEntityRetry() {
+    if (_retryCount >= _maxRetries) return;
+    _retryTimer?.cancel();
+    _retryTimer = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _retryCount++;
+        debugPrint('🔄 Retry #$_retryCount para obtener user entity');
+        ref.invalidate(currentUserEntityProvider);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
 
     debugPrint('🔑 AuthGate state: $authState');
 
     return authState.when(
-      data: (user) {
-        debugPrint('🔑 AuthGate data: user=${user?.email ?? "null"}');
-        if (user == null) return const LoginScreen();
-        return const DashboardScreen();
+      data: (firebaseUser) {
+        debugPrint('🔑 AuthGate data: user=${firebaseUser?.email ?? "null"}');
+        if (firebaseUser == null) {
+          _retryCount = 0;
+          _retryTimer?.cancel();
+          return const LoginScreen();
+        }
+
+        // Firebase Auth tiene user, ahora esperar el entity de Firestore
+        final userEntity = ref.watch(currentUserEntityProvider);
+        return userEntity.when(
+          data: (entity) {
+            if (entity != null) {
+              _retryCount = 0;
+              _retryTimer?.cancel();
+              return const DashboardScreen();
+            }
+            // Doc Firestore aún no existe (race condition OAuth)
+            _scheduleEntityRetry();
+            return _buildLoadingScreen('Configurando tu cuenta...');
+          },
+          loading: () => _buildLoadingScreen('Cargando tu cuenta...'),
+          error: (e, _) {
+            _scheduleEntityRetry();
+            return _buildLoadingScreen('Conectando...');
+          },
+        );
       },
       loading: () {
         debugPrint('🔑 AuthGate: loading...');
-        return const Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Conectando con Firebase...'),
-              ],
-            ),
-          ),
-        );
+        return _buildLoadingScreen('Conectando con Firebase...');
       },
       error: (e, _) {
         debugPrint('🔑 AuthGate error: $e');
-        // Si hay error de Firebase, mostrar LoginScreen directamente
         return const LoginScreen();
       },
+    );
+  }
+
+  Widget _buildLoadingScreen(String message) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(message),
+          ],
+        ),
+      ),
     );
   }
 }

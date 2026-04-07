@@ -5,7 +5,6 @@ import 'package:stockia/presentation/screens/login_screen.dart';
 import 'package:stockia/presentation/screens/register_screen.dart';
 import '../mocks/mock_repositories.dart';
 import '../mocks/test_helpers.dart';
-import '../mocks/test_fixtures.dart';
 
 void main() {
   group('E2E – Flujo de autenticación', () {
@@ -179,13 +178,13 @@ void main() {
       // Llenar contraseña
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Contraseña *'),
-        'password123',
+        'Test@1234',
       );
 
       // Llenar confirmar contraseña
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Confirmar contraseña *'),
-        'password123',
+        'Test@1234',
       );
 
       // Aceptar términos (tap en el Checkbox, no en el texto)

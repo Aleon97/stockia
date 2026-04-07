@@ -1,5 +1,4 @@
 import 'package:stockia/domain/entities/inventory_movement_entity.dart';
-import 'package:stockia/domain/entities/product_entity.dart';
 import 'package:stockia/domain/entities/stock_alert_entity.dart';
 import 'package:stockia/domain/repositories/inventory_movement_repository.dart';
 import 'package:stockia/domain/repositories/product_repository.dart';

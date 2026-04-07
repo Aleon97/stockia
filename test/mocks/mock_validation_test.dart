@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stockia/domain/entities/user_entity.dart';
-import 'package:stockia/domain/entities/product_entity.dart';
 import 'package:stockia/domain/entities/category_entity.dart';
 import 'package:stockia/domain/entities/inventory_movement_entity.dart';
 import 'package:stockia/domain/entities/stock_alert_entity.dart';

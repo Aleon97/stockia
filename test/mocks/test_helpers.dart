@@ -10,7 +10,6 @@ import 'package:stockia/presentation/providers/core_providers.dart';
 import 'package:stockia/presentation/providers/product_providers.dart';
 import 'package:stockia/presentation/providers/inventory_providers.dart';
 import 'mock_repositories.dart';
-import 'test_fixtures.dart';
 
 /// Crea un ProviderScope con overrides de todos los providers de Firebase.
 /// Esto permite renderizar cualquier pantalla sin Firebase real.

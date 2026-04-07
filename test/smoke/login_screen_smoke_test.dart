@@ -25,10 +25,10 @@ void main() {
       expect(find.byType(LoginScreen), findsOneWidget);
     });
 
-    testWidgets('muestra título StockIA', (tester) async {
+    testWidgets('muestra logo de StockIA', (tester) async {
       await tester.pumpWidget(buildLoginScreen());
       await tester.pumpAndSettle();
-      expect(find.text('StockIA'), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
     });
 
     testWidgets('muestra subtítulo', (tester) async {

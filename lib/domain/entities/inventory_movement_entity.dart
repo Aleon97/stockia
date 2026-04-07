@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// ignore_for_file: constant_identifier_names
 enum MovementType { IN, OUT, ADJUSTMENT }
 
 extension MovementTypeExtension on MovementType {

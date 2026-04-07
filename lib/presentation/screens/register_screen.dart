@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockia/domain/repositories/auth_repository.dart';
 import 'package:stockia/presentation/providers/auth_providers.dart';
 import 'package:stockia/presentation/screens/dashboard_screen.dart';
+import 'package:stockia/presentation/widgets/password_strength.dart';
 
 const List<String> _businessTypes = [
   'Ferretería',
@@ -41,6 +42,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _acceptedTerms = false;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -279,7 +286,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 // ── Tipo de negocio ──
                 DropdownButtonFormField<String>(
-                  value: _selectedBusinessType,
+                  initialValue: _selectedBusinessType,
                   decoration: const InputDecoration(
                     labelText: 'Tipo de negocio *',
                     prefixIcon: Icon(Icons.storefront),
@@ -384,16 +391,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Ingresa una contraseña';
-                    }
-                    if (v.length < 6) {
-                      return 'Mínimo 6 caracteres';
-                    }
-                    return null;
-                  },
+                  validator: PasswordValidator.validate,
                 ),
+                // ── Barra de fortaleza y requisitos ──
+                if (_passwordController.text.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  PasswordStrengthBar(
+                    strength: PasswordValidator.strength(
+                      _passwordController.text,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  PasswordRequirements(password: _passwordController.text),
+                ],
                 const SizedBox(height: 16),
 
                 // ── Confirmar contraseña ──

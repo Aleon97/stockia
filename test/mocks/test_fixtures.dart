@@ -135,7 +135,7 @@ final testAlert = StockAlertEntity(
 // ── SignUp Data ──
 const testSignUpData = SignUpData(
   email: 'new@stockia.com',
-  password: 'password123',
+  password: 'Test@1234',
   companyName: 'Mi Empresa',
   nit: '900.999.888-1',
   businessType: 'Ferretería',

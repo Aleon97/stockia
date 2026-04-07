@@ -63,7 +63,7 @@ final currentUserEntityProvider = FutureProvider<UserEntity?>((ref) async {
       return ref.read(authRepositoryProvider).getCurrentUserEntity();
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 

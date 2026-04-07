@@ -45,7 +45,9 @@ class DashboardScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (user) {
           if (user == null) {
-            return const Center(child: Text('No se encontró el usuario'));
+            // Reintentar obtener el entity (puede ser race condition)
+            Future.microtask(() => ref.invalidate(currentUserEntityProvider));
+            return const Center(child: CircularProgressIndicator());
           }
           return RefreshIndicator(
             onRefresh: () async {

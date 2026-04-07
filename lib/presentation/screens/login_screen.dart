@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockia/domain/repositories/auth_repository.dart';
 import 'package:stockia/presentation/providers/auth_providers.dart';
-import 'package:stockia/presentation/screens/dashboard_screen.dart';
+import 'package:stockia/presentation/providers/core_providers.dart';
 import 'package:stockia/presentation/screens/register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -55,151 +54,206 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         },
         data: (user) {
           if (user != null) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
-            );
+            // Invalidar currentUserEntityProvider para que _AuthGate
+            // detecte el nuevo usuario y navegue al Dashboard
+            ref.invalidate(currentUserEntityProvider);
           }
         },
       );
     });
 
     final isLoading = authState.isLoading;
+    final isWide = MediaQuery.of(context).size.width >= 800;
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: isWide
+            ? Row(
                 children: [
-                  const Icon(
-                    Icons.inventory_2,
-                    size: 80,
-                    color: Colors.deepPurple,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'StockIA',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Inicia sesión en tu cuenta',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // ── Email ──
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty)
-                        return 'Ingresa tu email';
-                      if (!v.contains('@')) return 'Email no válido';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Contraseña ──
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty)
-                        return 'Ingresa tu contraseña';
-                      if (v.length < 6) return 'Mínimo 6 caracteres';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── Botón login ──
-                  FilledButton(
-                    onPressed: isLoading ? null : _submit,
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                  // ── Lado izquierdo: Logo ──
+                  Expanded(
+                    child: Container(
+                      color: Colors.grey.shade100,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/logo_stockia.png',
+                              width: 260,
+                              fit: BoxFit.contain,
                             ),
-                          )
-                        : const Text('Iniciar sesión'),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── Separador ──
-                  const Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('O continúa con'),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Controla tu inventario',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Expanded(child: Divider()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Social buttons ──
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _SocialButton(
-                        label: 'Google',
-                        icon: Icons.g_mobiledata,
-                        color: Colors.red,
-                        onPressed: isLoading
-                            ? null
-                            : () => _socialLogin(SocialAuthProvider.google),
-                      ),
-                      const SizedBox(width: 12),
-                      _SocialButton(
-                        label: 'Microsoft',
-                        icon: Icons.window,
-                        color: Colors.blue,
-                        onPressed: isLoading
-                            ? null
-                            : () => _socialLogin(SocialAuthProvider.microsoft),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── Link a registro ──
-                  TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
                     ),
-                    child: const Text('¿No tienes cuenta? Regístrate aquí'),
+                  ),
+                  // ── Lado derecho: Login ──
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(40),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 420),
+                          child: _buildLoginForm(context, isLoading),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
+              )
+            : Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/images/logo_stockia.png',
+                          width: 180,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Controla tu inventario',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(color: Colors.grey.shade700),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildLoginForm(context, isLoading),
+                      ],
+                    ),
+                  ),
+                ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm(BuildContext context, bool isLoading) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Inicia sesión en tu cuenta',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurple,
             ),
           ),
-        ),
+          const SizedBox(height: 32),
+
+          // ── Email ──
+          TextFormField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              prefixIcon: Icon(Icons.email),
+              border: OutlineInputBorder(),
+            ),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Ingresa tu email';
+              if (!v.contains('@')) return 'Email no válido';
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // ── Contraseña ──
+          TextFormField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: 'Contraseña',
+              prefixIcon: Icon(Icons.lock),
+              border: OutlineInputBorder(),
+            ),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Ingresa tu contraseña';
+              if (v.length < 6) return 'Mínimo 6 caracteres';
+              return null;
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // ── Botón login ──
+          FilledButton(
+            onPressed: isLoading ? null : _submit,
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Iniciar sesión'),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Separador ──
+          const Row(
+            children: [
+              Expanded(child: Divider()),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text('O continúa con'),
+              ),
+              Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // ── Social buttons ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _SocialButton(
+                label: 'Google',
+                icon: Icons.g_mobiledata,
+                color: Colors.red,
+                onPressed: isLoading
+                    ? null
+                    : () => _socialLogin(SocialAuthProvider.google),
+              ),
+              const SizedBox(width: 12),
+              _SocialButton(
+                label: 'Microsoft',
+                icon: Icons.window,
+                color: Colors.blue,
+                onPressed: isLoading
+                    ? null
+                    : () => _socialLogin(SocialAuthProvider.microsoft),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // ── Link a registro ──
+          TextButton(
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const RegisterScreen())),
+            child: const Text('¿No tienes cuenta? Regístrate aquí'),
+          ),
+        ],
       ),
     );
   }
