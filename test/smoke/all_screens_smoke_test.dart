@@ -49,7 +49,7 @@ void main() {
     testWidgets('muestra AppBar con título', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.text('StockIA - Dashboard'), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
     });
 
     testWidgets('muestra icono de logout', (tester) async {

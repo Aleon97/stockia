@@ -62,10 +62,10 @@ void main() {
       expect(find.text('ID: tenant-1'), findsOneWidget);
     });
 
-    testWidgets('Dashboard muestra título StockIA - Dashboard', (tester) async {
+    testWidgets('Dashboard muestra título Dashboard', (tester) async {
       await tester.pumpWidget(buildDashboard(products: []));
       await tester.pumpAndSettle();
-      expect(find.text('StockIA - Dashboard'), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
     });
 
     testWidgets('Muestra conteo correcto de productos', (tester) async {

@@ -1022,7 +1022,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Microsoft User'), findsOneWidget);
-      expect(find.text('StockIA - Dashboard'), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Martillo'), findsOneWidget);
       expect(find.text('Destornillador'), findsOneWidget);
     });
@@ -1821,7 +1821,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('StockIA - Dashboard'), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
     });
 
     testWidgets('Login: campos no pierden texto al reconstruir', (
