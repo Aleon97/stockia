@@ -68,10 +68,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isWide = MediaQuery.of(context).size.width >= 800;
 
     return Scaffold(
-      backgroundColor: isWide ? AppColors.surface : AppColors.background,
-      body: SafeArea(
-        child: isWide
-            ? Row(
+      backgroundColor: AppColors.surface,
+      body: isWide
+          ? SafeArea(
+              child: Row(
                 children: [
                   // ── Lado izquierdo: Branding ──
                   const Expanded(child: AuthBrandingPanel()),
@@ -91,38 +91,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ],
-              )
-            : Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 16),
-                        Image.asset(
-                          'assets/images/logo_stockia.png',
-                          width: 160,
-                          fit: BoxFit.contain,
+              ),
+            )
+          : Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── Branding header (mobile) ──
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 40,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.primary, AppColors.secondary],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Gestiona tu inventario de forma inteligente',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                          ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(32),
+                          bottomRight: Radius.circular(32),
                         ),
-                        const SizedBox(height: 32),
-                        _buildLoginForm(context, isLoading),
-                      ],
+                      ),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0x26FFFFFF),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.xxl,
+                                ),
+                              ),
+                              child: Image.asset(
+                                'assets/images/logo_stockia.png',
+                                width: 120,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Gestiona tu inventario de forma inteligente',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    // ── Form section ──
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: _buildLoginForm(context, isLoading),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-      ),
+            ),
     );
   }
 

@@ -130,23 +130,23 @@ class _AppShellState extends ConsumerState<AppShell> {
             onTap: () => _navigate(NavSection.products, isDrawer),
           ),
           _SidebarItem(
-            icon: Icons.swap_vert_outlined,
-            activeIcon: Icons.swap_vert,
+            icon: Icons.compare_arrows,
+            activeIcon: Icons.compare_arrows,
             label: 'Movimientos',
             expanded: expanded,
             selected: _currentSection == NavSection.movements,
             onTap: () => _navigate(NavSection.movements, isDrawer),
           ),
           _SidebarItem(
-            icon: Icons.analytics_outlined,
-            activeIcon: Icons.analytics,
+            icon: Icons.bar_chart,
+            activeIcon: Icons.bar_chart,
             label: 'Reporte',
             expanded: expanded,
             selected: _currentSection == NavSection.reports,
             onTap: () => _navigate(NavSection.reports, isDrawer),
           ),
           _SidebarItem(
-            icon: Icons.notifications_outlined,
+            icon: Icons.notifications_none,
             activeIcon: Icons.notifications,
             label: 'Alertas',
             expanded: expanded,
@@ -158,7 +158,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           const Divider(color: AppColors.sidebarHover, height: 1),
 
           _SidebarItem(
-            icon: Icons.settings_outlined,
+            icon: Icons.settings,
             activeIcon: Icons.settings,
             label: 'Configuración',
             expanded: expanded,
