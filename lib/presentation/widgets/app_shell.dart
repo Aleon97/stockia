@@ -202,9 +202,11 @@ class _AppShellState extends ConsumerState<AppShell> {
         children: [
           // Menu hamburger (mobile)
           if (isMobile)
-            IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.textPrimary),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+            Builder(
+              builder: (scaffoldContext) => IconButton(
+                icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+                onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
+              ),
             ),
 
           // Título de la sección
@@ -351,34 +353,6 @@ class _AppShellState extends ConsumerState<AppShell> {
 }
 
 // ── Sidebar components ──
-
-class _SidebarSection extends StatelessWidget {
-  final String label;
-  final bool expanded;
-
-  const _SidebarSection({required this.label, required this.expanded});
-
-  @override
-  Widget build(BuildContext context) {
-    if (!expanded) return const SizedBox(height: AppSpacing.lg);
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: AppSpacing.lg,
-        top: AppSpacing.lg,
-        bottom: AppSpacing.xs,
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: AppColors.sidebarText,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-}
 
 class _SidebarItem extends StatelessWidget {
   final IconData icon;
