@@ -1151,12 +1151,15 @@ void main() {
       await tester.pumpWidget(buildProfile());
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Editar'));
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Cancelar'));
       await tester.tap(find.text('Cancelar'));
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Editar'));
       expect(find.text('Editar'), findsOneWidget);
       expect(find.text('Guardar'), findsNothing);
     });
@@ -1226,16 +1229,19 @@ void main() {
       await tester.pumpAndSettle();
 
       // Entrar en modo edición
+      await tester.ensureVisible(find.text('Editar'));
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
 
       // Cambiar email a uno que ya existe
       final emailField = find.byType(TextField).at(2);
+      await tester.ensureVisible(emailField);
       await tester.tap(emailField);
       await tester.enterText(emailField, 'existing@google.com');
       await tester.pumpAndSettle();
 
       // Guardar
+      await tester.ensureVisible(find.text('Guardar'));
       await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 
@@ -1262,16 +1268,19 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Editar'));
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
 
       // Cambiar email a uno disponible
       final emailField = find.byType(TextField).at(2);
+      await tester.ensureVisible(emailField);
       await tester.tap(emailField);
       await tester.enterText(emailField, 'new@email.com');
       await tester.pumpAndSettle();
 
       // Guardar
+      await tester.ensureVisible(find.text('Guardar'));
       await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 
@@ -1284,15 +1293,18 @@ void main() {
       await tester.pumpWidget(buildProfile());
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Editar'));
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
 
       // Limpiar nombre de empresa
       final companyField = find.byType(TextField).at(0);
+      await tester.ensureVisible(companyField);
       await tester.tap(companyField);
       await tester.enterText(companyField, '');
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('Guardar'));
       await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 

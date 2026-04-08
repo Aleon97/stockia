@@ -215,6 +215,7 @@ class _CreateMovementFormState extends ConsumerState<_CreateMovementForm> {
             productsAsync.when(
               data: (products) => DropdownButtonFormField<String>(
                 initialValue: _selectedProductId,
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Producto',
                   prefixIcon: Icon(Icons.inventory),

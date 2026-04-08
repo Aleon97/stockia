@@ -237,257 +237,269 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Crear cuenta')),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Datos de la empresa',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // ── Nombre empresa ──
-                TextFormField(
-                  controller: _companyNameController,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre de la empresa *',
-                    prefixIcon: Icon(Icons.business),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Ingresa el nombre de la empresa'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                // ── NIT ──
-                TextFormField(
-                  controller: _nitController,
-                  keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                    labelText: 'NIT *',
-                    prefixIcon: Icon(Icons.numbers),
-                    border: OutlineInputBorder(),
-                    hintText: 'Ej: 900.123.456-7',
-                  ),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Ingresa el NIT de la empresa'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                // ── Tipo de negocio ──
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedBusinessType,
-                  decoration: const InputDecoration(
-                    labelText: 'Tipo de negocio *',
-                    prefixIcon: Icon(Icons.storefront),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _businessTypes
-                      .map(
-                        (type) =>
-                            DropdownMenuItem(value: type, child: Text(type)),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => _selectedBusinessType = v),
-                  validator: (v) =>
-                      v == null ? 'Selecciona el tipo de negocio' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // ── Representante legal ──
-                TextFormField(
-                  controller: _legalRepController,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre del representante legal *',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Ingresa el nombre del representante legal'
-                      : null,
-                ),
-                const SizedBox(height: 32),
-
-                Text(
-                  'Credenciales de acceso',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // ── Email ──
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo electrónico *',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Ingresa tu correo electrónico';
-                    }
-                    final emailRegex = RegExp(
-                      r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-                    );
-                    if (!emailRegex.hasMatch(v.trim())) {
-                      return 'Correo electrónico no válido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // ── Confirmar email ──
-                TextFormField(
-                  controller: _emailConfirmController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirmar correo electrónico *',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Confirma tu correo electrónico';
-                    }
-                    if (v.trim() != _emailController.text.trim()) {
-                      return 'Los correos no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // ── Contraseña ──
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña *',
-                    prefixIcon: const Icon(Icons.lock),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Datos de la empresa',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
                       ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                  ),
-                  validator: PasswordValidator.validate,
-                ),
-                // ── Barra de fortaleza y requisitos ──
-                if (_passwordController.text.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  PasswordStrengthBar(
-                    strength: PasswordValidator.strength(
-                      _passwordController.text,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  PasswordRequirements(password: _passwordController.text),
-                ],
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                // ── Confirmar contraseña ──
-                TextFormField(
-                  controller: _passwordConfirmController,
-                  obscureText: _obscureConfirm,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar contraseña *',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirm
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                    // ── Nombre empresa ──
+                    TextFormField(
+                      controller: _companyNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre de la empresa *',
+                        prefixIcon: Icon(Icons.business),
+                        border: OutlineInputBorder(),
                       ),
-                      onPressed: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Ingresa el nombre de la empresa'
+                          : null,
                     ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Confirma tu contraseña';
-                    }
-                    if (v != _passwordController.text) {
-                      return 'Las contraseñas no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                // ── Términos y condiciones ──
-                CheckboxListTile(
-                  value: _acceptedTerms,
-                  onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  title: RichText(
-                    text: TextSpan(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      children: [
-                        const TextSpan(text: 'Acepto los '),
-                        TextSpan(
-                          text: 'términos y condiciones',
-                          style: const TextStyle(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
+                    // ── NIT ──
+                    TextFormField(
+                      controller: _nitController,
+                      keyboardType: TextInputType.text,
+                      decoration: const InputDecoration(
+                        labelText: 'NIT *',
+                        prefixIcon: Icon(Icons.numbers),
+                        border: OutlineInputBorder(),
+                        hintText: 'Ej: 900.123.456-7',
+                      ),
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Ingresa el NIT de la empresa'
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Tipo de negocio ──
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedBusinessType,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Tipo de negocio *',
+                        prefixIcon: Icon(Icons.storefront),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: _businessTypes
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) =>
+                          setState(() => _selectedBusinessType = v),
+                      validator: (v) =>
+                          v == null ? 'Selecciona el tipo de negocio' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Representante legal ──
+                    TextFormField(
+                      controller: _legalRepController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre del representante legal *',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Ingresa el nombre del representante legal'
+                          : null,
+                    ),
+                    const SizedBox(height: 32),
+
+                    Text(
+                      'Credenciales de acceso',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Email ──
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo electrónico *',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Ingresa tu correo electrónico';
+                        }
+                        final emailRegex = RegExp(
+                          r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
+                        );
+                        if (!emailRegex.hasMatch(v.trim())) {
+                          return 'Correo electrónico no válido';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Confirmar email ──
+                    TextFormField(
+                      controller: _emailConfirmController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirmar correo electrónico *',
+                        prefixIcon: Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Confirma tu correo electrónico';
+                        }
+                        if (v.trim() != _emailController.text.trim()) {
+                          return 'Los correos no coinciden';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Contraseña ──
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña *',
+                        prefixIcon: const Icon(Icons.lock),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => _showTermsDialog(context),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                         ),
-                        const TextSpan(text: ' *'),
-                      ],
+                      ),
+                      validator: PasswordValidator.validate,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                    // ── Barra de fortaleza y requisitos ──
+                    if (_passwordController.text.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      PasswordStrengthBar(
+                        strength: PasswordValidator.strength(
+                          _passwordController.text,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      PasswordRequirements(password: _passwordController.text),
+                    ],
+                    const SizedBox(height: 16),
 
-                // ── Botón registrarse ──
-                FilledButton.icon(
-                  onPressed: isLoading ? null : _submit,
-                  icon: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                    // ── Confirmar contraseña ──
+                    TextFormField(
+                      controller: _passwordConfirmController,
+                      obscureText: _obscureConfirm,
+                      decoration: InputDecoration(
+                        labelText: 'Confirmar contraseña *',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirm
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
-                        )
-                      : const Icon(Icons.person_add),
-                  label: const Text('Crear cuenta'),
-                ),
-                const SizedBox(height: 12),
+                          onPressed: () => setState(
+                            () => _obscureConfirm = !_obscureConfirm,
+                          ),
+                        ),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Confirma tu contraseña';
+                        }
+                        if (v != _passwordController.text) {
+                          return 'Las contraseñas no coinciden';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
 
-                // ── Volver al login ──
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('¿Ya tienes cuenta? Inicia sesión'),
+                    // ── Términos y condiciones ──
+                    CheckboxListTile(
+                      value: _acceptedTerms,
+                      onChanged: (v) =>
+                          setState(() => _acceptedTerms = v ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      title: RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: [
+                            const TextSpan(text: 'Acepto los '),
+                            TextSpan(
+                              text: 'términos y condiciones',
+                              style: const TextStyle(
+                                color: Colors.deepPurple,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () => _showTermsDialog(context),
+                            ),
+                            const TextSpan(text: ' *'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Botón registrarse ──
+                    FilledButton.icon(
+                      onPressed: isLoading ? null : _submit,
+                      icon: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.person_add),
+                      label: const Text('Crear cuenta'),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // ── Volver al login ──
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('¿Ya tienes cuenta? Inicia sesión'),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
           ),
         ),

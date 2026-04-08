@@ -78,61 +78,68 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // ── Resumen de métricas ──
-                Row(
-                  children: [
-                    Expanded(
-                      child: productsAsync.when(
-                        data: (products) => _MetricCard(
-                          icon: Icons.inventory_2,
-                          title: 'Productos',
-                          value: '${products.length}',
-                          color: Colors.blue,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ProductListScreen(),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 400;
+                    final metricCards = <Widget>[
+                      Expanded(
+                        child: productsAsync.when(
+                          data: (products) => _MetricCard(
+                            icon: Icons.inventory_2,
+                            title: 'Productos',
+                            value: '${products.length}',
+                            color: Colors.blue,
+                            compact: isNarrow,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ProductListScreen(),
+                              ),
                             ),
                           ),
+                          loading: () => const _DashboardCardLoading(),
+                          error: (e, _) =>
+                              _DashboardCardError(error: e.toString()),
                         ),
-                        loading: () => const _DashboardCardLoading(),
-                        error: (e, _) =>
-                            _DashboardCardError(error: e.toString()),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: lowStockAsync.when(
-                        data: (products) => _MetricCard(
-                          icon: Icons.warning_amber,
-                          title: 'Stock Bajo',
-                          value: '${products.length}',
-                          color: Colors.orange,
-                          onTap: () {},
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: lowStockAsync.when(
+                          data: (products) => _MetricCard(
+                            icon: Icons.warning_amber,
+                            title: 'Stock Bajo',
+                            value: '${products.length}',
+                            color: Colors.orange,
+                            compact: isNarrow,
+                            onTap: () {},
+                          ),
+                          loading: () => const _DashboardCardLoading(),
+                          error: (e, _) =>
+                              _DashboardCardError(error: e.toString()),
                         ),
-                        loading: () => const _DashboardCardLoading(),
-                        error: (e, _) =>
-                            _DashboardCardError(error: e.toString()),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: alertsAsync.when(
-                        data: (alerts) => _MetricCard(
-                          icon: Icons.notification_important,
-                          title: 'Alertas',
-                          value: '${alerts.length}',
-                          color: Colors.red,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const StockAlertsScreen(),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: alertsAsync.when(
+                          data: (alerts) => _MetricCard(
+                            icon: Icons.notification_important,
+                            title: 'Alertas',
+                            value: '${alerts.length}',
+                            color: Colors.red,
+                            compact: isNarrow,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const StockAlertsScreen(),
+                              ),
                             ),
                           ),
+                          loading: () => const _DashboardCardLoading(),
+                          error: (e, _) =>
+                              _DashboardCardError(error: e.toString()),
                         ),
-                        loading: () => const _DashboardCardLoading(),
-                        error: (e, _) =>
-                            _DashboardCardError(error: e.toString()),
                       ),
-                    ),
-                  ],
+                    ];
+                    return Row(children: metricCards);
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -172,8 +179,11 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // ── Grid de inventario ──
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     Text(
                       'Inventario',
@@ -279,6 +289,7 @@ class _MetricCard extends StatelessWidget {
   final String value;
   final Color color;
   final VoidCallback onTap;
+  final bool compact;
 
   const _MetricCard({
     required this.icon,
@@ -286,6 +297,7 @@ class _MetricCard extends StatelessWidget {
     required this.value,
     required this.color,
     required this.onTap,
+    this.compact = false,
   });
 
   @override
@@ -296,23 +308,32 @@ class _MetricCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          padding: EdgeInsets.symmetric(
+            vertical: compact ? 10 : 16,
+            horizontal: compact ? 6 : 12,
+          ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 28),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
+              Icon(icon, color: color, size: compact ? 22 : 28),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),

@@ -1,1 +1,76 @@
-{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}],"headers":[{"source":"**/*.js","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},{"source":"**/*.css","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},{"source":"index.html","headers":[{"key":"Cache-Control","value":"no-cache"},{"key":"X-Content-Type-Options","value":"nosniff"},{"key":"X-Frame-Options","value":"SAMEORIGIN"},{"key":"X-XSS-Protection","value":"1; mode=block"},{"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"}]}]},"flutter":{"platforms":{"android":{"default":{"projectId":"stockia-f048c","appId":"1:340618108498:android:ecf477efa01d408883498b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"stockia-f048c","configurations":{"android":"1:340618108498:android:ecf477efa01d408883498b","ios":"1:340618108498:ios:010facfa0baaf51283498b","macos":"1:340618108498:ios:010facfa0baaf51283498b","web":"1:340618108498:web:ca0a9a096a465e4f83498b","windows":"1:340618108498:web:944d407f1f6417bb83498b"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "headers": [
+      {
+        "source": "index.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+          { "key": "X-XSS-Protection", "value": "1; mode=block" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        ]
+      },
+      {
+        "source": "main.dart.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "flutter_bootstrap.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "flutter_service_worker.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "canvaskit/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=86400" }
+        ]
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "stockia-f048c",
+          "appId": "1:340618108498:android:ecf477efa01d408883498b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "stockia-f048c",
+          "configurations": {
+            "android": "1:340618108498:android:ecf477efa01d408883498b",
+            "ios": "1:340618108498:ios:010facfa0baaf51283498b",
+            "macos": "1:340618108498:ios:010facfa0baaf51283498b",
+            "web": "1:340618108498:web:ca0a9a096a465e4f83498b",
+            "windows": "1:340618108498:web:944d407f1f6417bb83498b"
+          }
+        }
+      }
+    }
+  }
+}

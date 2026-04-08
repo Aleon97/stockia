@@ -200,114 +200,137 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre del producto',
-                  prefixIcon: Icon(Icons.label),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Campo requerido' : null,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre del producto',
+                      prefixIcon: Icon(Icons.label),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Campo requerido'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _categoryController,
+                    readOnly: widget.restrictEditing,
+                    decoration: const InputDecoration(
+                      labelText: 'Categoría',
+                      helperText: 'Ej: Herramientas, Alimentos, Electrónica',
+                      prefixIcon: Icon(Icons.category),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Campo requerido'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _costPriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Precio ingreso',
+                      prefixIcon: Icon(Icons.arrow_downward),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Campo requerido';
+                      }
+                      if (double.tryParse(v) == null) {
+                        return 'Número no válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _salePriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Precio venta',
+                      prefixIcon: Icon(Icons.attach_money),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Campo requerido';
+                      }
+                      if (double.tryParse(v) == null) {
+                        return 'Número no válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _stockController,
+                    readOnly: widget.restrictEditing,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Stock actual',
+                      prefixIcon: Icon(Icons.inventory),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Campo requerido';
+                      }
+                      if (int.tryParse(v) == null) {
+                        return 'Número entero requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _minStockController,
+                    readOnly: widget.restrictEditing,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Stock mínimo',
+                      prefixIcon: Icon(Icons.warning_amber),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Campo requerido';
+                      }
+                      if (int.tryParse(v) == null) {
+                        return 'Número entero requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: _isLoading ? null : _save,
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save),
+                    label: Text(_isEditing ? 'Actualizar' : 'Crear Producto'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _categoryController,
-                readOnly: widget.restrictEditing,
-                decoration: const InputDecoration(
-                  labelText: 'Categoría',
-                  helperText: 'Ej: Herramientas, Alimentos, Electrónica',
-                  prefixIcon: Icon(Icons.category),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Campo requerido' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _costPriceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Precio ingreso',
-                  prefixIcon: Icon(Icons.arrow_downward),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Campo requerido';
-                  if (double.tryParse(v) == null) return 'Número no válido';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _salePriceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Precio venta',
-                  prefixIcon: Icon(Icons.attach_money),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Campo requerido';
-                  if (double.tryParse(v) == null) return 'Número no válido';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _stockController,
-                readOnly: widget.restrictEditing,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Stock actual',
-                  prefixIcon: Icon(Icons.inventory),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Campo requerido';
-                  if (int.tryParse(v) == null) return 'Número entero requerido';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _minStockController,
-                readOnly: widget.restrictEditing,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Stock mínimo',
-                  prefixIcon: Icon(Icons.warning_amber),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Campo requerido';
-                  if (int.tryParse(v) == null) return 'Número entero requerido';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _isLoading ? null : _save,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.save),
-                label: Text(_isEditing ? 'Actualizar' : 'Crear Producto'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

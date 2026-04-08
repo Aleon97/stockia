@@ -37,57 +37,108 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           if (user == null) {
             return const Center(child: Text('No se encontró el usuario'));
           }
-          return Row(
-            children: [
-              // ── Menú lateral ──
-              SizedBox(
-                width: 220,
-                child: Card(
-                  margin: const EdgeInsets.all(12),
-                  child: ListView.builder(
-                    itemCount: _menuItems.length,
-                    itemBuilder: (context, index) {
-                      final item = _menuItems[index];
-                      final selected = _selectedIndex == index;
-                      return ListTile(
-                        leading: Icon(
-                          item.icon,
-                          color: index == 3
-                              ? Colors.red
-                              : selected
-                              ? Colors.deepPurple
-                              : null,
-                        ),
-                        title: Text(
-                          item.label,
-                          style: TextStyle(
-                            fontWeight: selected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: index == 3 ? Colors.red : null,
-                          ),
-                        ),
-                        selected: selected && index != 3,
-                        onTap: () {
-                          if (index == 3) {
-                            _handleLogout();
-                          } else {
-                            setState(() => _selectedIndex = index);
-                          }
-                        },
-                      );
-                    },
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 600;
+              if (isWide) {
+                return Row(
+                  children: [
+                    SizedBox(width: 220, child: _buildMenu()),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildContent(user),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              // Mobile: menu as horizontal chips + content below
+              return Column(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: List.generate(_menuItems.length, (index) {
+                        final item = _menuItems[index];
+                        final selected = _selectedIndex == index;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: index == 3
+                              ? ActionChip(
+                                  avatar: Icon(
+                                    item.icon,
+                                    color: Colors.red,
+                                    size: 18,
+                                  ),
+                                  label: Text(
+                                    item.label,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                  onPressed: _handleLogout,
+                                )
+                              : ChoiceChip(
+                                  avatar: Icon(item.icon, size: 18),
+                                  label: Text(item.label),
+                                  selected: selected,
+                                  onSelected: (_) =>
+                                      setState(() => _selectedIndex = index),
+                                ),
+                        );
+                      }),
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: _buildContent(user),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMenu() {
+    return Card(
+      margin: const EdgeInsets.all(12),
+      child: ListView.builder(
+        itemCount: _menuItems.length,
+        itemBuilder: (context, index) {
+          final item = _menuItems[index];
+          final selected = _selectedIndex == index;
+          return ListTile(
+            leading: Icon(
+              item.icon,
+              color: index == 3
+                  ? Colors.red
+                  : selected
+                  ? Colors.deepPurple
+                  : null,
+            ),
+            title: Text(
+              item.label,
+              style: TextStyle(
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                color: index == 3 ? Colors.red : null,
               ),
-              // ── Contenido ──
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildContent(user),
-                ),
-              ),
-            ],
+            ),
+            selected: selected && index != 3,
+            onTap: () {
+              if (index == 3) {
+                _handleLogout();
+              } else {
+                setState(() => _selectedIndex = index);
+              }
+            },
           );
         },
       ),
@@ -227,7 +278,7 @@ class _GeneralSectionState extends ConsumerState<_GeneralSection> {
                     if (_editing && isSocialLogin) ...[
                       const SizedBox(height: 4),
                       Padding(
-                        padding: const EdgeInsets.only(left: 170),
+                        padding: EdgeInsets.zero,
                         child: Row(
                           children: [
                             Icon(
@@ -315,25 +366,22 @@ class _GeneralSectionState extends ConsumerState<_GeneralSection> {
     if (!_editing) {
       return _infoRow(label, displayValue);
     }
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 170,
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            enabled: enabled,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              isDense: true,
-              filled: !enabled,
-              fillColor: !enabled ? Colors.grey.shade200 : null,
-            ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          enabled: enabled,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            isDense: true,
+            filled: !enabled,
+            fillColor: !enabled ? Colors.grey.shade200 : null,
           ),
         ),
       ],
@@ -341,16 +389,15 @@ class _GeneralSectionState extends ConsumerState<_GeneralSection> {
   }
 
   Widget _infoRow(String label, String value) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 170,
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontSize: 14)),
       ],
     );
   }
@@ -552,8 +599,8 @@ class _SecuritySectionState extends ConsumerState<_SecuritySection> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: 400,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
                 child: TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrent,
@@ -575,8 +622,8 @@ class _SecuritySectionState extends ConsumerState<_SecuritySection> {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                width: 400,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
                 child: TextFormField(
                   controller: _newPasswordController,
                   obscureText: _obscureNew,
@@ -597,20 +644,19 @@ class _SecuritySectionState extends ConsumerState<_SecuritySection> {
               // ── Barra de fortaleza ──
               if (newPwd.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: 400,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
                   child: PasswordStrengthBar(strength: strength),
                 ),
                 const SizedBox(height: 12),
-                // ── Lista de requisitos ──
-                SizedBox(
-                  width: 400,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
                   child: PasswordRequirements(password: newPwd),
                 ),
               ],
               const SizedBox(height: 16),
-              SizedBox(
-                width: 400,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
                 child: TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirm,
