@@ -87,7 +87,7 @@ void main() {
 
       // En mobile no debe haber Row como layout principal (split layout)
       // Debe haber logo + form en columna
-      expect(find.text('Inicia sesión en tu cuenta'), findsOneWidget);
+      expect(find.text('Bienvenido de nuevo'), findsOneWidget);
       expect(find.byType(TextFormField), findsWidgets);
     });
 
@@ -103,8 +103,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // En desktop debe mostrar el texto del panel izquierdo
-      expect(find.text('Controla tu inventario'), findsOneWidget);
-      expect(find.text('Inicia sesión en tu cuenta'), findsOneWidget);
+      expect(
+        find.text('Gestiona tu inventario de forma inteligente'),
+        findsOneWidget,
+      );
+      expect(find.text('Bienvenido de nuevo'), findsOneWidget);
     });
   });
 
@@ -172,7 +175,7 @@ void main() {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
 
-      expect(find.text('Productos'), findsWidgets);
+      expect(find.text('Total productos'), findsWidgets);
     });
 
     testWidgets('desktop: tabla de inventario visible', (tester) async {

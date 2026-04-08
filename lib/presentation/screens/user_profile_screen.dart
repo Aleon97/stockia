@@ -8,7 +8,8 @@ import 'package:stockia/presentation/screens/login_screen.dart';
 import 'package:stockia/presentation/widgets/password_strength.dart';
 
 class UserProfileScreen extends ConsumerStatefulWidget {
-  const UserProfileScreen({super.key});
+  final bool asPage;
+  const UserProfileScreen({super.key, this.asPage = true});
 
   @override
   ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
@@ -29,7 +30,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     final userAsync = ref.watch(currentUserEntityProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mi Cuenta')),
+      appBar: widget.asPage ? AppBar(title: const Text('Mi Cuenta')) : null,
       body: userAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),

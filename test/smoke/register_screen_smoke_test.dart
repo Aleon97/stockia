@@ -102,7 +102,7 @@ void main() {
     testWidgets('tiene checkbox de términos y condiciones', (tester) async {
       await tester.pumpWidget(buildRegisterScreen());
       await tester.pumpAndSettle();
-      expect(find.byType(CheckboxListTile), findsOneWidget);
+      expect(find.byType(Checkbox), findsOneWidget);
     });
   });
 }

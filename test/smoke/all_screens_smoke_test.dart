@@ -58,26 +58,25 @@ void main() {
       expect(find.byIcon(Icons.logout), findsOneWidget);
     });
 
-    testWidgets('muestra card de usuario', (tester) async {
+    testWidgets('muestra KPI de valor inventario', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.text('Test User'), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.text('Valor inventario'), findsOneWidget);
     });
 
     testWidgets('muestra 3 métricas', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.text('Productos'), findsOneWidget);
-      expect(find.text('Stock Bajo'), findsOneWidget);
-      expect(find.text('Alertas'), findsOneWidget);
+      expect(find.text('Total productos'), findsOneWidget);
+      expect(find.text('Stock bajo'), findsOneWidget);
+      expect(find.text('Alertas activas'), findsOneWidget);
     });
 
     testWidgets('muestra accesos rápidos', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.text('Accesos rápidos'), findsOneWidget);
-      expect(find.text('Nuevo Producto'), findsOneWidget);
+      expect(find.text('Acciones rápidas'), findsOneWidget);
+      expect(find.text('Nuevo producto'), findsOneWidget);
       expect(find.text('Movimientos'), findsOneWidget);
     });
 
@@ -110,15 +109,15 @@ void main() {
     testWidgets('iconos de métricas correctos', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.inventory_2), findsOneWidget);
-      expect(find.byIcon(Icons.warning_amber), findsWidgets);
-      expect(find.byIcon(Icons.notification_important), findsOneWidget);
+      expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber_rounded), findsWidgets);
+      expect(find.byIcon(Icons.notifications_active_outlined), findsOneWidget);
     });
 
     testWidgets('iconos de accesos rápidos correctos', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.add_box), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsWidgets);
       expect(find.byIcon(Icons.swap_vert), findsOneWidget);
     });
   });
@@ -331,7 +330,7 @@ void main() {
     testWidgets('con alertas muestra icono warning', (tester) async {
       await tester.pumpWidget(buildAlerts(empty: false));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.warning), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
     });
 
     testWidgets('con alertas muestra botón Resolver', (tester) async {
@@ -388,7 +387,7 @@ void main() {
     testWidgets('muestra ícono de inventario por producto', (tester) async {
       await tester.pumpWidget(buildList(empty: false));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.inventory), findsNWidgets(2));
+      expect(find.byIcon(Icons.inventory_2_outlined), findsNWidgets(2));
     });
   });
 

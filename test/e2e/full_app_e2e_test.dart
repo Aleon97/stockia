@@ -50,16 +50,16 @@ void main() {
       );
     }
 
-    testWidgets('Dashboard muestra nombre del usuario', (tester) async {
+    testWidgets('Dashboard muestra KPI valor inventario', (tester) async {
       await tester.pumpWidget(buildDashboard(products: []));
       await tester.pumpAndSettle();
-      expect(find.text('Test User'), findsOneWidget);
+      expect(find.text('Valor inventario'), findsOneWidget);
     });
 
-    testWidgets('Dashboard muestra tenant ID del usuario', (tester) async {
+    testWidgets('Dashboard muestra KPI alertas activas', (tester) async {
       await tester.pumpWidget(buildDashboard(products: []));
       await tester.pumpAndSettle();
-      expect(find.text('ID: tenant-1'), findsOneWidget);
+      expect(find.text('Alertas activas'), findsOneWidget);
     });
 
     testWidgets('Dashboard muestra título Dashboard', (tester) async {
@@ -79,8 +79,8 @@ void main() {
     testWidgets('Muestra accesos rápidos', (tester) async {
       await tester.pumpWidget(buildDashboard(products: []));
       await tester.pumpAndSettle();
-      expect(find.text('Accesos rápidos'), findsOneWidget);
-      expect(find.text('Nuevo Producto'), findsOneWidget);
+      expect(find.text('Acciones rápidas'), findsOneWidget);
+      expect(find.text('Nuevo producto'), findsOneWidget);
       expect(find.text('Movimientos'), findsOneWidget);
     });
 
@@ -113,8 +113,8 @@ void main() {
       await tester.pumpWidget(buildDashboard(products: [testProduct1]));
       await tester.pumpAndSettle();
       expect(find.text('Producto'), findsOneWidget);
-      expect(find.text('Cantidad Disponible'), findsOneWidget);
-      expect(find.text('Cantidad Mínima'), findsOneWidget);
+      expect(find.text('Cant. Disponible'), findsOneWidget);
+      expect(find.text('Cant. Mínima'), findsOneWidget);
       expect(find.text('Precio Ingreso'), findsOneWidget);
       expect(find.text('Precio Venta'), findsOneWidget);
       expect(find.text('Valor Total'), findsOneWidget);
@@ -177,7 +177,7 @@ void main() {
       await tester.pumpWidget(buildDashboard(products: []));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nuevo Producto'));
+      await tester.tap(find.text('Nuevo producto'));
       await tester.pumpAndSettle();
 
       expect(find.byType(ProductFormScreen), findsOneWidget);
@@ -201,7 +201,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the Productos metric card
-      await tester.tap(find.text('Productos'));
+      await tester.tap(find.text('Total productos'));
       await tester.pumpAndSettle();
 
       expect(find.byType(ProductListScreen), findsOneWidget);
@@ -1191,7 +1191,7 @@ void main() {
       expect(find.text('Esta sección está en desarrollo.'), findsOneWidget);
     });
 
-    testWidgets('Dashboard navega a perfil al tocar tarjeta usuario', (
+    testWidgets('Dashboard KPI Valor inventario navega a ProductListScreen', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -1204,11 +1204,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Test User'));
+      await tester.tap(find.text('Valor inventario'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(UserProfileScreen), findsOneWidget);
-      expect(find.text('Mi Cuenta'), findsOneWidget);
+      expect(find.byType(ProductListScreen), findsOneWidget);
     });
 
     testWidgets('Email duplicado muestra error y bloquea guardado', (

@@ -1,52 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:stockia/domain/entities/inventory_movement_entity.dart';
 import 'package:stockia/presentation/providers/core_providers.dart';
 import 'package:stockia/presentation/providers/inventory_providers.dart';
 import 'package:stockia/presentation/providers/product_providers.dart';
+import 'package:stockia/presentation/theme/app_theme.dart';
 
 class InventoryMovementsScreen extends ConsumerWidget {
-  const InventoryMovementsScreen({super.key});
+  final bool asPage;
+  const InventoryMovementsScreen({super.key, this.asPage = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final movementsAsync = ref.watch(movementsStreamProvider);
 
+    final body = movementsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data: (movements) {
+        if (movements.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.swap_vert, size: 56, color: AppColors.textTertiary),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'No hay movimientos',
+                  style: GoogleFonts.inter(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          itemCount: movements.length,
+          itemBuilder: (context, index) {
+            final movement = movements[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: _MovementTile(movement: movement),
+            );
+          },
+        );
+      },
+    );
+
+    final fab = FloatingActionButton(
+      onPressed: () => _showCreateMovementDialog(context, ref),
+      child: const Icon(Icons.add),
+    );
+
+    if (!asPage) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        floatingActionButton: fab,
+        body: body,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Movimientos de Inventario')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateMovementDialog(context, ref),
-        child: const Icon(Icons.add),
-      ),
-      body: movementsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (movements) {
-          if (movements.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.swap_vert, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'No hay movimientos',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: movements.length,
-            itemBuilder: (context, index) {
-              final movement = movements[index];
-              return _MovementTile(movement: movement);
-            },
-          );
-        },
-      ),
+      floatingActionButton: fab,
+      body: body,
     );
   }
 
@@ -69,10 +91,22 @@ class _MovementTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (icon, color) = switch (movement.type) {
-      MovementType.IN => (Icons.arrow_downward, Colors.green),
-      MovementType.OUT => (Icons.arrow_upward, Colors.red),
-      MovementType.ADJUSTMENT => (Icons.tune, Colors.orange),
+    final (icon, color, bgColor) = switch (movement.type) {
+      MovementType.IN => (
+        Icons.arrow_downward,
+        AppColors.success,
+        AppColors.successLight,
+      ),
+      MovementType.OUT => (
+        Icons.arrow_upward,
+        AppColors.danger,
+        AppColors.dangerLight,
+      ),
+      MovementType.ADJUSTMENT => (
+        Icons.tune,
+        AppColors.warning,
+        AppColors.warningLight,
+      ),
     };
 
     final productsAsync = ref.watch(productsStreamProvider);
@@ -91,8 +125,8 @@ class _MovementTile extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            color: bgColor,
+            borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Icon(icon, color: color),
         ),

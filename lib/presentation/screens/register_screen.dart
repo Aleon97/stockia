@@ -1,9 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:stockia/domain/repositories/auth_repository.dart';
 import 'package:stockia/presentation/providers/auth_providers.dart';
 import 'package:stockia/presentation/screens/dashboard_screen.dart';
+import 'package:stockia/presentation/theme/app_theme.dart';
+import 'package:stockia/presentation/widgets/auth_branding_panel.dart';
 import 'package:stockia/presentation/widgets/password_strength.dart';
 
 const List<String> _businessTypes = [
@@ -182,7 +185,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Debes aceptar los términos y condiciones'),
-          backgroundColor: Colors.orange,
+          backgroundColor: AppColors.warning,
         ),
       );
       return;
@@ -211,7 +214,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(error.toString()),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.danger,
             ),
           );
         },
@@ -222,7 +225,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 content: Text(
                   'Cuenta creada. Se envió un correo de verificación.',
                 ),
-                backgroundColor: Colors.green,
+                backgroundColor: AppColors.success,
               ),
             );
             Navigator.of(context).pushAndRemoveUntil(
@@ -234,275 +237,461 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
     });
 
+    final isWide = MediaQuery.of(context).size.width >= 800;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+      backgroundColor: isWide ? AppColors.surface : AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Datos de la empresa',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Nombre empresa ──
-                    TextFormField(
-                      controller: _companyNameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre de la empresa *',
-                        prefixIcon: Icon(Icons.business),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Ingresa el nombre de la empresa'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── NIT ──
-                    TextFormField(
-                      controller: _nitController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: 'NIT *',
-                        prefixIcon: Icon(Icons.numbers),
-                        border: OutlineInputBorder(),
-                        hintText: 'Ej: 900.123.456-7',
-                      ),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Ingresa el NIT de la empresa'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Tipo de negocio ──
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedBusinessType,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de negocio *',
-                        prefixIcon: Icon(Icons.storefront),
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _businessTypes
-                          .map(
-                            (type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _selectedBusinessType = v),
-                      validator: (v) =>
-                          v == null ? 'Selecciona el tipo de negocio' : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Representante legal ──
-                    TextFormField(
-                      controller: _legalRepController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre del representante legal *',
-                        prefixIcon: Icon(Icons.person),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Ingresa el nombre del representante legal'
-                          : null,
-                    ),
-                    const SizedBox(height: 32),
-
-                    Text(
-                      'Credenciales de acceso',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Email ──
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo electrónico *',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Ingresa tu correo electrónico';
-                        }
-                        final emailRegex = RegExp(
-                          r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-                        );
-                        if (!emailRegex.hasMatch(v.trim())) {
-                          return 'Correo electrónico no válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Confirmar email ──
-                    TextFormField(
-                      controller: _emailConfirmController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirmar correo electrónico *',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Confirma tu correo electrónico';
-                        }
-                        if (v.trim() != _emailController.text.trim()) {
-                          return 'Los correos no coinciden';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ── Contraseña ──
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Contraseña *',
-                        prefixIcon: const Icon(Icons.lock),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
+        child: isWide
+            ? Row(
+                children: [
+                  // ── Lado izquierdo: Branding ──
+                  const Expanded(child: AuthBrandingPanel()),
+                  // ── Lado derecho: Formulario ──
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 24,
                         ),
-                      ),
-                      validator: PasswordValidator.validate,
-                    ),
-                    // ── Barra de fortaleza y requisitos ──
-                    if (_passwordController.text.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      PasswordStrengthBar(
-                        strength: PasswordValidator.strength(
-                          _passwordController.text,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      PasswordRequirements(password: _passwordController.text),
-                    ],
-                    const SizedBox(height: 16),
-
-                    // ── Confirmar contraseña ──
-                    TextFormField(
-                      controller: _passwordConfirmController,
-                      obscureText: _obscureConfirm,
-                      decoration: InputDecoration(
-                        labelText: 'Confirmar contraseña *',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirm
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () => setState(
-                            () => _obscureConfirm = !_obscureConfirm,
-                          ),
-                        ),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Confirma tu contraseña';
-                        }
-                        if (v != _passwordController.text) {
-                          return 'Las contraseñas no coinciden';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-
-                    // ── Términos y condiciones ──
-                    CheckboxListTile(
-                      value: _acceptedTerms,
-                      onChanged: (v) =>
-                          setState(() => _acceptedTerms = v ?? false),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                      title: RichText(
-                        text: TextSpan(
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          children: [
-                            const TextSpan(text: 'Acepto los '),
-                            TextSpan(
-                              text: 'términos y condiciones',
-                              style: const TextStyle(
-                                color: Colors.deepPurple,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => _showTermsDialog(context),
-                            ),
-                            const TextSpan(text: ' *'),
-                          ],
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          child: _buildRegisterForm(context, isLoading),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // ── Botón registrarse ──
-                    FilledButton.icon(
-                      onPressed: isLoading ? null : _submit,
-                      icon: isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.person_add),
-                      label: const Text('Crear cuenta'),
+                  ),
+                ],
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Column(
+                      children: [
+                        // ── Mobile header ──
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_rounded),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/images/logo_stockia.png',
+                          width: 120,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 24),
+                        _buildRegisterForm(context, isLoading),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-
-                    // ── Volver al login ──
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('¿Ya tienes cuenta? Inicia sesión'),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  ),
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterForm(BuildContext context, bool isLoading) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Header ──
+          Text(
+            'Crear cuenta',
+            style: GoogleFonts.inter(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
             ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            'Completa la información para registrar tu empresa',
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // ══════════════════════════════════════
+          // SECCIÓN 1: Datos de la empresa
+          // ══════════════════════════════════════
+          _SectionCard(
+            icon: Icons.business_outlined,
+            title: 'Datos de la empresa',
+            children: [
+              // ── Nombre empresa ──
+              TextFormField(
+                controller: _companyNameController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Nombre de la empresa *',
+                  hintText: 'Ej: Mi Empresa S.A.S',
+                  prefixIcon: const Icon(Icons.business_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Ingresa el nombre de la empresa'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+
+              // ── NIT ──
+              TextFormField(
+                controller: _nitController,
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                  labelText: 'NIT *',
+                  hintText: 'Ej: 900.123.456-7',
+                  prefixIcon: const Icon(Icons.numbers_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Ingresa el NIT de la empresa'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+
+              // ── Tipo de negocio ──
+              DropdownButtonFormField<String>(
+                initialValue: _selectedBusinessType,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: 'Tipo de negocio *',
+                  prefixIcon: const Icon(Icons.storefront_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                items: _businessTypes
+                    .map(
+                      (type) =>
+                          DropdownMenuItem(value: type, child: Text(type)),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedBusinessType = v),
+                validator: (v) =>
+                    v == null ? 'Selecciona el tipo de negocio' : null,
+              ),
+              const SizedBox(height: 16),
+
+              // ── Representante legal ──
+              TextFormField(
+                controller: _legalRepController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Nombre del representante legal *',
+                  hintText: 'Nombre completo',
+                  prefixIcon: const Icon(Icons.person_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Ingresa el nombre del representante legal'
+                    : null,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // ══════════════════════════════════════
+          // SECCIÓN 2: Credenciales de acceso
+          // ══════════════════════════════════════
+          _SectionCard(
+            icon: Icons.lock_outlined,
+            title: 'Credenciales de acceso',
+            children: [
+              // ── Email ──
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Correo electrónico *',
+                  hintText: 'tu@correo.com',
+                  prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Ingresa tu correo electrónico';
+                  }
+                  final emailRegex = RegExp(
+                    r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
+                  );
+                  if (!emailRegex.hasMatch(v.trim())) {
+                    return 'Correo electrónico no válido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // ── Confirmar email ──
+              TextFormField(
+                controller: _emailConfirmController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Confirmar correo electrónico *',
+                  hintText: 'Repite tu correo',
+                  prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Confirma tu correo electrónico';
+                  }
+                  if (v.trim() != _emailController.text.trim()) {
+                    return 'Los correos no coinciden';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // ── Contraseña ──
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Contraseña *',
+                  prefixIcon: const Icon(Icons.lock_outlined, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 20,
+                      color: AppColors.textTertiary,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
+                validator: PasswordValidator.validate,
+              ),
+              // ── Barra de fortaleza y requisitos ──
+              if (_passwordController.text.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                PasswordStrengthBar(
+                  strength: PasswordValidator.strength(
+                    _passwordController.text,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                PasswordRequirements(password: _passwordController.text),
+              ],
+              const SizedBox(height: 16),
+
+              // ── Confirmar contraseña ──
+              TextFormField(
+                controller: _passwordConfirmController,
+                obscureText: _obscureConfirm,
+                decoration: InputDecoration(
+                  labelText: 'Confirmar contraseña *',
+                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirm
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 20,
+                      color: AppColors.textTertiary,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Confirma tu contraseña';
+                  }
+                  if (v != _passwordController.text) {
+                    return 'Las contraseñas no coinciden';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // ── Términos y condiciones ──
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Checkbox(
+                  value: _acceptedTerms,
+                  onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
+                  activeColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _acceptedTerms = !_acceptedTerms),
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Acepto los '),
+                        TextSpan(
+                          text: 'términos y condiciones',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _showTermsDialog(context),
+                        ),
+                        const TextSpan(text: ' *'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+
+          // ── Botón registrarse ──
+          SizedBox(
+            height: 48,
+            child: FilledButton(
+              onPressed: isLoading ? null : _submit,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      'Crear cuenta',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ── Volver al login ──
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+              ),
+              child: const Text('¿Ya tienes cuenta? Inicia sesión'),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
+/// Card visual para agrupar secciones del formulario de registro.
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final List<Widget> children;
+
+  const _SectionCard({
+    required this.icon,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Icon(icon, size: 20, color: AppColors.primary),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Flexible(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          ...children,
+        ],
       ),
     );
   }

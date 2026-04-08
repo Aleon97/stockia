@@ -70,8 +70,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Image), findsOneWidget);
-      expect(find.text('Controla tu inventario'), findsOneWidget);
-      expect(find.text('Inicia sesión en tu cuenta'), findsOneWidget);
+      expect(
+        find.text('Gestiona tu inventario de forma inteligente'),
+        findsOneWidget,
+      );
+      expect(find.text('Bienvenido de nuevo'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Contraseña'), findsOneWidget);
       expect(find.text('Iniciar sesión'), findsOneWidget);
@@ -191,22 +194,22 @@ void main() {
     });
 
     // ── Dashboard tras login normal ──
-    testWidgets('Dashboard: muestra nombre usuario y tenant', (tester) async {
+    testWidgets('Dashboard: muestra KPIs nuevos', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
 
-      expect(find.text('Test User'), findsOneWidget);
-      expect(find.text('ID: tenant-1'), findsOneWidget);
+      expect(find.text('Total productos'), findsOneWidget);
+      expect(find.text('Valor inventario'), findsOneWidget);
     });
 
     testWidgets('Dashboard: muestra métricas correctas', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
 
-      expect(find.text('Productos'), findsOneWidget);
+      expect(find.text('Total productos'), findsOneWidget);
       expect(find.text('2'), findsWidgets); // 2 productos
-      expect(find.text('Stock Bajo'), findsOneWidget);
-      expect(find.text('Alertas'), findsOneWidget);
+      expect(find.text('Stock bajo'), findsOneWidget);
+      expect(find.text('Alertas activas'), findsOneWidget);
     });
 
     testWidgets('Dashboard: tabla inventario muestra productos', (
@@ -278,7 +281,7 @@ void main() {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nuevo Producto'));
+      await tester.tap(find.text('Nuevo producto'));
       await tester.pumpAndSettle();
 
       expect(find.byType(ProductFormScreen), findsOneWidget);
@@ -302,7 +305,7 @@ void main() {
 
       // Tap en la card de Productos
       final productCard = find.ancestor(
-        of: find.text('Productos'),
+        of: find.text('Total productos'),
         matching: find.byType(Card),
       );
       if (productCard.evaluate().isNotEmpty) {
@@ -313,14 +316,11 @@ void main() {
       }
     });
 
-    testWidgets('Dashboard: tap en usuario navega a perfil', (tester) async {
+    testWidgets('Dashboard: KPI Stock bajo presente', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Test User'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(UserProfileScreen), findsOneWidget);
+      expect(find.text('Stock bajo'), findsOneWidget);
     });
 
     // ── Navegación desde Dashboard a cada pantalla ──
@@ -775,7 +775,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Google User'), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Martillo'), findsOneWidget);
     });
 
@@ -1021,7 +1021,6 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Microsoft User'), findsOneWidget);
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Martillo'), findsOneWidget);
       expect(find.text('Destornillador'), findsOneWidget);
@@ -1479,6 +1478,13 @@ void main() {
         find.widgetWithText(TextFormField, 'Confirmar contraseña *'),
         'Test@1234',
       );
+
+      // Scroll para ver checkbox y botón
+      await tester.drag(
+        find.byType(SingleChildScrollView).first,
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
 
       final checkbox = find.byType(Checkbox);
       if (checkbox.evaluate().isNotEmpty) {

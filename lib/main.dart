@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockia/firebase_options.dart';
 import 'package:stockia/presentation/providers/core_providers.dart';
-import 'package:stockia/presentation/screens/dashboard_screen.dart';
 import 'package:stockia/presentation/screens/login_screen.dart';
+import 'package:stockia/presentation/theme/app_theme.dart';
+import 'package:stockia/presentation/widgets/app_shell.dart';
 
 void main() async {
   runZonedGuarded(
@@ -61,14 +62,7 @@ class StockIAApp extends ConsumerWidget {
     return MaterialApp(
       title: 'StockIA',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-        ),
-      ),
+      theme: buildAppTheme(),
       home: const _AuthGate(),
     );
   }
@@ -126,7 +120,7 @@ class _AuthGateState extends ConsumerState<_AuthGate> {
             if (entity != null) {
               _retryCount = 0;
               _retryTimer?.cancel();
-              return const DashboardScreen();
+              return const AppShell();
             }
             // Doc Firestore aún no existe (race condition OAuth)
             _scheduleEntityRetry();

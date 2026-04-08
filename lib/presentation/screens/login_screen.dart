@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:stockia/domain/repositories/auth_repository.dart';
 import 'package:stockia/presentation/providers/auth_providers.dart';
 import 'package:stockia/presentation/providers/core_providers.dart';
 import 'package:stockia/presentation/screens/register_screen.dart';
+import 'package:stockia/presentation/theme/app_theme.dart';
+import 'package:stockia/presentation/widgets/auth_branding_panel.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -48,14 +52,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(_friendlyErrorMessage(error)),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.danger,
             ),
           );
         },
         data: (user) {
           if (user != null) {
-            // Invalidar currentUserEntityProvider para que _AuthGate
-            // detecte el nuevo usuario y navegue al Dashboard
             ref.invalidate(currentUserEntityProvider);
           }
         },
@@ -66,42 +68,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isWide = MediaQuery.of(context).size.width >= 800;
 
     return Scaffold(
+      backgroundColor: isWide ? AppColors.surface : AppColors.background,
       body: SafeArea(
         child: isWide
             ? Row(
                 children: [
-                  // ── Lado izquierdo: Logo ──
-                  Expanded(
-                    child: Container(
-                      color: Colors.grey.shade100,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/images/logo_stockia.png',
-                              width: 260,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              'Controla tu inventario',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    color: Colors.grey.shade700,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  // ── Lado izquierdo: Branding ──
+                  const Expanded(child: AuthBrandingPanel()),
                   // ── Lado derecho: Login ──
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(40),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 48,
+                          vertical: 32,
+                        ),
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 420),
                           child: _buildLoginForm(context, isLoading),
@@ -119,16 +100,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        const SizedBox(height: 16),
                         Image.asset(
                           'assets/images/logo_stockia.png',
-                          width: 180,
+                          width: 160,
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Text(
-                          'Controla tu inventario',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(color: Colors.grey.shade700),
+                          'Gestiona tu inventario de forma inteligente',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: 32),
                         _buildLoginForm(context, isLoading),
@@ -148,12 +133,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ── Título ──
           Text(
-            'Inicia sesión en tu cuenta',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
+            'Bienvenido de nuevo',
+            style: GoogleFonts.inter(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ingresa tus credenciales para continuar',
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 32),
@@ -161,11 +155,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           // ── Email ──
           TextFormField(
             controller: _emailController,
+            autofocus: true,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Email',
-              prefixIcon: Icon(Icons.email),
-              border: OutlineInputBorder(),
+              hintText: 'tu@correo.com',
+              prefixIcon: const Icon(Icons.email_outlined, size: 20),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
             ),
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Ingresa tu email';
@@ -173,16 +172,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // ── Contraseña ──
           TextFormField(
             controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
+            obscureText: _obscurePassword,
+            decoration: InputDecoration(
               labelText: 'Contraseña',
-              prefixIcon: Icon(Icons.lock),
-              border: OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.lock_outlined, size: 20),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  size: 20,
+                  color: AppColors.textTertiary,
+                ),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+              ),
             ),
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Ingresa tu contraseña';
@@ -190,45 +203,64 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // ── Botón login ──
-          FilledButton(
-            onPressed: isLoading ? null : _submit,
-            child: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+          SizedBox(
+            height: 48,
+            child: FilledButton(
+              onPressed: isLoading ? null : _submit,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      'Iniciar sesión',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                : const Text('Iniciar sesión'),
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // ── Separador ──
-          const Row(
+          Row(
             children: [
-              Expanded(child: Divider()),
+              const Expanded(child: Divider(color: AppColors.border)),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('O continúa con'),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'O continúa con',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
               ),
-              Expanded(child: Divider()),
+              const Expanded(child: Divider(color: AppColors.border)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // ── Social buttons ──
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _SocialButton(
                 label: 'Google',
                 icon: Icons.g_mobiledata,
-                color: Colors.red,
                 onPressed: isLoading
                     ? null
                     : () => _socialLogin(SocialAuthProvider.google),
@@ -237,21 +269,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               _SocialButton(
                 label: 'Microsoft',
                 icon: Icons.window,
-                color: Colors.blue,
                 onPressed: isLoading
                     ? null
                     : () => _socialLogin(SocialAuthProvider.microsoft),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // ── Link a registro ──
-          TextButton(
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const RegisterScreen())),
-            child: const Text('¿No tienes cuenta? Regístrate aquí'),
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const RegisterScreen())),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+              ),
+              child: const Text('¿No tienes cuenta? Regístrate aquí'),
+            ),
           ),
         ],
       ),
@@ -300,25 +336,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 class _SocialButton extends StatelessWidget {
   final String label;
   final IconData icon;
-  final Color color;
   final VoidCallback? onPressed;
 
   const _SocialButton({
     required this.label,
     required this.icon,
-    required this.color,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, color: color),
-        label: Text(label, overflow: TextOverflow.ellipsis),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SizedBox(
+        height: 48,
+        child: OutlinedButton.icon(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 22),
+          label: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            side: const BorderSide(color: AppColors.border),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+          ),
         ),
       ),
     );

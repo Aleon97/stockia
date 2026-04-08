@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stockia/presentation/theme/app_theme.dart';
 
 // ═══════════════════════════════════════════════════════════
 // Password Strength Helper
@@ -82,10 +83,10 @@ class PasswordStrengthBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color, fraction) = switch (strength) {
-      PasswordStrength.none => ('', Colors.grey, 0.0),
-      PasswordStrength.weak => ('Débil', Colors.red, 0.33),
-      PasswordStrength.medium => ('Medio', Colors.orange, 0.66),
-      PasswordStrength.strong => ('Fuerte', Colors.green, 1.0),
+      PasswordStrength.none => ('', AppColors.textTertiary, 0.0),
+      PasswordStrength.weak => ('Débil', AppColors.danger, 0.33),
+      PasswordStrength.medium => ('Medio', AppColors.warning, 0.66),
+      PasswordStrength.strong => ('Fuerte', AppColors.success, 1.0),
     };
 
     return Column(
@@ -96,7 +97,7 @@ class PasswordStrengthBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: fraction,
             minHeight: 6,
-            backgroundColor: Colors.grey.shade300,
+            backgroundColor: AppColors.border,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -160,7 +161,7 @@ class PasswordRequirements extends StatelessWidget {
           Icon(
             met ? Icons.check_circle : Icons.circle_outlined,
             size: 16,
-            color: met ? Colors.green : Colors.grey,
+            color: met ? AppColors.success : AppColors.textTertiary,
           ),
           const SizedBox(width: 6),
           Flexible(
@@ -168,7 +169,7 @@ class PasswordRequirements extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 12,
-                color: met ? Colors.green.shade700 : Colors.grey.shade600,
+                color: met ? AppColors.success : AppColors.textSecondary,
               ),
             ),
           ),

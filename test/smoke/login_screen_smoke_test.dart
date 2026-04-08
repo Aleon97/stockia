@@ -34,7 +34,7 @@ void main() {
     testWidgets('muestra subtítulo', (tester) async {
       await tester.pumpWidget(buildLoginScreen());
       await tester.pumpAndSettle();
-      expect(find.text('Inicia sesión en tu cuenta'), findsOneWidget);
+      expect(find.text('Bienvenido de nuevo'), findsOneWidget);
     });
 
     testWidgets('tiene campo de email', (tester) async {

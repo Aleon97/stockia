@@ -187,6 +187,13 @@ void main() {
         'Test@1234',
       );
 
+      // Scroll para ver checkbox y botón
+      await tester.drag(
+        find.byType(SingleChildScrollView).first,
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+
       // Aceptar términos (tap en el Checkbox, no en el texto)
       final checkbox = find.byType(Checkbox);
       if (checkbox.evaluate().isNotEmpty) {
