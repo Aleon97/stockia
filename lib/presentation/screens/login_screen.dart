@@ -59,6 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         data: (user) {
           if (user != null) {
             ref.invalidate(currentUserEntityProvider);
+            ref.invalidate(authStateProvider);
           }
         },
       );
