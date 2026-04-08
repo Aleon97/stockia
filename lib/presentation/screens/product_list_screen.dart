@@ -88,14 +88,6 @@ class ProductListScreen extends ConsumerWidget {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductFormScreen(
-                        product: product,
-                        restrictEditing: true,
-                      ),
-                    ),
-                  ),
                 ),
               ),
             );

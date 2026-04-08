@@ -9,12 +9,13 @@ import 'package:stockia/presentation/screens/inventory_movements_screen.dart';
 import 'package:stockia/presentation/screens/login_screen.dart';
 
 import 'package:stockia/presentation/screens/product_list_screen.dart';
+import 'package:stockia/presentation/screens/reports_screen.dart';
 import 'package:stockia/presentation/screens/stock_alerts_screen.dart';
 import 'package:stockia/presentation/screens/user_profile_screen.dart';
 import 'package:stockia/presentation/theme/app_theme.dart';
 
 /// Index de cada sección del sidebar
-enum NavSection { dashboard, products, movements, alerts, settings }
+enum NavSection { dashboard, products, movements, reports, alerts, settings }
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -120,7 +121,6 @@ class _AppShellState extends ConsumerState<AppShell> {
             onTap: () => _navigate(NavSection.dashboard, isDrawer),
           ),
 
-          _SidebarSection(label: 'INVENTARIO', expanded: expanded),
           _SidebarItem(
             icon: Icons.inventory_2_outlined,
             activeIcon: Icons.inventory_2,
@@ -136,6 +136,14 @@ class _AppShellState extends ConsumerState<AppShell> {
             expanded: expanded,
             selected: _currentSection == NavSection.movements,
             onTap: () => _navigate(NavSection.movements, isDrawer),
+          ),
+          _SidebarItem(
+            icon: Icons.analytics_outlined,
+            activeIcon: Icons.analytics,
+            label: 'Reporte',
+            expanded: expanded,
+            selected: _currentSection == NavSection.reports,
+            onTap: () => _navigate(NavSection.reports, isDrawer),
           ),
           _SidebarItem(
             icon: Icons.notifications_outlined,
@@ -323,6 +331,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     NavSection.dashboard => 'Dashboard',
     NavSection.products => 'Productos',
     NavSection.movements => 'Movimientos',
+    NavSection.reports => 'Reporte',
     NavSection.alerts => 'Alertas de Stock',
     NavSection.settings => 'Configuración',
   };
@@ -334,6 +343,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       NavSection.products => const ProductListScreen(asPage: false),
       NavSection.movements => const InventoryMovementsScreen(asPage: false),
+      NavSection.reports => const ReportsScreen(asPage: false),
       NavSection.alerts => const StockAlertsScreen(asPage: false),
       NavSection.settings => const UserProfileScreen(asPage: false),
     };
